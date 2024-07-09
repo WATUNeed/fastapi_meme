@@ -18,19 +18,19 @@ async def meme_create(session: AsyncSession, data: MemeCreateDTO, image: bytes) 
     return new_meme
 
 
-async def meme_update(session: AsyncSession, data: MemeUpdateDTO) -> MemeGetDTO:
-    meme = await MemeSQLDAO(session).get_dto_by_id(id)
+async def meme_update(session: AsyncSession, data: MemeUpdateDTO, image: bytes | None) -> MemeGetDTO:
+    meme = await MemeSQLDAO(session).get_dto_by_id(data.id)
     if meme is None:
         raise MemeExceptions.NotFound
 
     image_id = meme.image_id
 
-    if data.image is not None:
-        image_id = await MemeBrokerDAO.create(data.image)
+    if image is not None:
+        image_id = await MemeBrokerDAO.create(image)
         if image_id is None:
             raise MemeExceptions.NotSaved
 
-    meme = await MemeSQLDAO(session).update(data, exclude={'image'}, image_id=image_id)
+    meme = await MemeSQLDAO(session).update(data, image_id=image_id)
     return meme
 
 
@@ -45,9 +45,6 @@ async def meme_get(session: AsyncSession, id: UUID) -> MemeGetDTO:
     meme = await MemeSQLDAO(session).get_dto_by_id(id)
     if meme is None:
         raise MemeExceptions.NotFound
-    image = await MemeBrokerDAO.get(meme.image_id)
-    if image is None:
-        raise MemeExceptions.FileNotFound
     return meme
 
 

@@ -1,4 +1,3 @@
-from typing import Set
 from uuid import UUID
 
 from faststream.rabbit import RabbitQueue
@@ -15,7 +14,6 @@ class MemeBrokerDAO:
 
         create = RabbitQueue(f'{_v}.{_domain}_create', **RABBITMQ_CONFIG.queue_factory())
         get = RabbitQueue(f'{_v}.{_domain}_get', **RABBITMQ_CONFIG.queue_factory())
-        get_names = RabbitQueue(f'{_v}.{_domain}_get_names', **RABBITMQ_CONFIG.queue_factory())
 
     @classmethod
     async def create(cls, meme: bytes) -> UUID | None:
@@ -25,16 +23,9 @@ class MemeBrokerDAO:
         return result
 
     @classmethod
-    async def get(cls, image_id: UUID) -> bytes:
+    async def get(cls, image_id: UUID) -> bytes | None:
         filename = f'{image_id}'
         result = await BROKER.publish(filename, cls._Queues.get, MEDIA_EXCHANGE, rpc=True, rpc_timeout=1)
-        if result is None or result == b'':
-            return None
-        return result
-
-    @classmethod
-    async def get_names(cls) -> Set[UUID]:
-        result = await BROKER.publish(None, cls._Queues.get_names, MEDIA_EXCHANGE, rpc=True, rpc_timeout=1)
         if result is None or result == b'':
             return None
         return result

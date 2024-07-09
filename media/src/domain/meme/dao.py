@@ -1,5 +1,4 @@
 import io
-from typing import Set
 from uuid import uuid4, UUID
 
 from minio import Minio
@@ -26,10 +25,3 @@ class MemeDAO:
             str(filename)
         ).data
         return meme
-
-    def get_names_from_bucket(self) -> Set[UUID]:
-        bucket_files = self.minio.list_objects(self.bucket_name)
-        memes = {
-            UUID(file.object_name) for file in bucket_files
-        }
-        return memes

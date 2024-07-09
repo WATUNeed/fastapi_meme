@@ -1,0 +1,39 @@
+services:
+  meme:
+    container_name: meme
+    ports:
+      - ${MEME_PORT}:${MEME_PORT}
+    build:
+      context: ./
+      dockerfile: ./meme/Dockerfile
+    env_file:
+      - .env
+    command:
+      uvicorn src.api.rest.main:app --host 0.0.0.0 --port ${MEME_PORT}
+    volumes:
+      - ./meme/migrations/:/meme/migrations/
+      - ./meme/logs/:/meme/logs/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+
+  media:
+    container_name: media
+    build:
+      context: ./
+      dockerfile: ./media/Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./media/logs/:/media/logs/
+    command:
+      faststream run src.api.amqp.main:app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: always

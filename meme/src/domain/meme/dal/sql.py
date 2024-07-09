@@ -8,7 +8,7 @@ from src.domain.meme.dto import MemeGetDTO, MemeCreateDTO, MemeUpdateDTO
 from src.domain.meme.model import Meme
 
 
-class MemeDAO(
+class MemeSQLDAO(
     AbstractDAO[
         Meme,
         MemeGetDTO,

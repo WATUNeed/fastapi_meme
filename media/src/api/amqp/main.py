@@ -8,4 +8,7 @@ app = FastStream(BROKER)
 
 @app.on_startup
 async def on_startup():
-    pass
+    from src.api.amqp.meme.consumer import meme_amqp_v1
+    BROKER.include_routers(
+        meme_amqp_v1
+    )

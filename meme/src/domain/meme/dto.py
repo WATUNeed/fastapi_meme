@@ -16,6 +16,7 @@ class MemeGetDTO(AbstractDTO):
     name: str = Field(..., max_length=256)
     description: str | None = Field(None)
     image_id: UUID = Field(...)
+    image_url: str = Field(...)
 
 
 class MemeUpdateDTO(AbstractDTO):
@@ -23,10 +24,3 @@ class MemeUpdateDTO(AbstractDTO):
     name: str | None = Field(None, max_length=256)
     description: str | None = Field(None)
     image: bytes | None = Field(None)
-
-
-class MemeGetWithImageDTO(AbstractDTO):
-    id: UUID = Field(...)
-    name: str = Field(..., max_length=256)
-    description: str | None = Field(None)
-    image: bytes = Field(...)

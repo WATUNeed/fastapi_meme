@@ -1,3 +1,5 @@
+from typing import Any
+
 from faststream.rabbit import RabbitExchange
 from faststream.rabbit.utils import build_url
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -17,8 +19,10 @@ class RabbitMQConfig(BaseSettings):
             host=self.host, port=self.port, login=self.default_user, password=self.default_pass, virtualhost=self.vhost
         )
 
+    def queue_factory(self) -> dict[str, Any]:
+        return {
+            'auto_delete': True
+        }
+
 
 RABBITMQ_CONFIG = RabbitMQConfig()
-
-MEME_EXCHANGE = RabbitExchange("MEME", auto_delete=True)
-MEDIA_EXCHANGE = RabbitExchange("MEDIA", auto_delete=True)

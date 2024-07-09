@@ -9,6 +9,7 @@ class MemeConfig(BaseSettings):
     debug: bool
     host: str
     port: int
+    origin: str
 
     def init_kwargs(self) -> Dict[str, Any]:
         if self.debug is False:

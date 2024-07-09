@@ -1,11 +1,10 @@
-from typing import TypeVar, Generic, Type, Any, List, Dict
+from typing import TypeVar, Generic, Type, Any, List, Dict, Set
 from uuid import UUID
 
 from sqlalchemy import update, select, func, delete
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.domain.abc.exception import DomainNotFound
 from src.domain.abc.model import AbstractModel
 from src.domain.abc.dto import AbstractDTO
 
@@ -20,24 +19,24 @@ ID = int | UUID | str
 
 class AbstractDAO(Generic[ModelType, GetDTOType, CreateDTOType, UpdateDTOType]):
     model: Type[ModelType] = AbstractModel
-    get_scheme: Type[GetDTOType] = GetDTOType
-    create_scheme: Type[CreateDTOType] = CreateDTOType
-    update_scheme: Type[UpdateDTOType] = UpdateDTOType
+    get_dto: Type[GetDTOType] = GetDTOType
+    create_dto: Type[CreateDTOType] = CreateDTOType
+    update_dto: Type[UpdateDTOType] = UpdateDTOType
 
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, data: CreateDTOType, **kwargs: Any) -> GetDTOType:
+    async def create(self, data: CreateDTOType, exclude: Set[str] | None = None, **kwargs: Any) -> GetDTOType:
         query = insert(
             self.model
         ).returning(
             self.model
         ).values(
-            **data.model_dump(exclude_none=True),
+            **data.model_dump(exclude_none=True, exclude=exclude),
             **kwargs
         )
         result = await self.session.scalar(query)
-        new_instance = self.get_scheme.model_validate(result)
+        new_instance = self.get_dto.model_validate(result)
         return new_instance
 
     async def update(self, data: UpdateDTOType, **kwargs: Any):
@@ -68,15 +67,15 @@ class AbstractDAO(Generic[ModelType, GetDTOType, CreateDTOType, UpdateDTOType]):
     async def get_list(self) -> List[GetDTOType]:
         query = select(self.model)
         result = await self.session.scalars(query)
-        return [self.get_scheme.model_validate(item) for item in result]
+        return [self.get_dto.model_validate(item) for item in result]
 
-    async def get_dto_by_id(self, instance_id: ID) -> GetDTOType:
+    async def get_dto_by_id(self, instance_id: ID) -> GetDTOType | None:
         result = await self.session.get(self.model, instance_id)
         if result is None:
-            raise DomainNotFound(self.__class__.__name__)
-        return self.get_scheme.model_validate(result)
+            return None
+        return self.get_dto.model_validate(result)
 
-    async def get_model_by_id(self, instance_id: ID) -> ModelType:
+    async def get_model_by_id(self, instance_id: ID) -> ModelType | None:
         query = select(
             self.model
         ).where(
@@ -85,7 +84,7 @@ class AbstractDAO(Generic[ModelType, GetDTOType, CreateDTOType, UpdateDTOType]):
         result = (await self.session.execute(query)).scalar_one_or_none()
 
         if result is None:
-            raise DomainNotFound(self.__class__.__name__)
+            return None
         return result
 
     async def update_list(self, data: List[Dict[str, Any]]):
@@ -102,7 +101,7 @@ class AbstractDAO(Generic[ModelType, GetDTOType, CreateDTOType, UpdateDTOType]):
 
         query = insert(self.model).returning(self.model, sort_by_parameter_order=True)
         result = await self.session.scalars(query, data)
-        return [self.get_scheme.model_validate(instance) for instance in result]
+        return [self.get_dto.model_validate(instance) for instance in result]
 
     async def delete_list(self, ids: List[ID]):
         if len(ids) < 1:

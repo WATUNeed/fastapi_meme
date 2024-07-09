@@ -12,7 +12,10 @@ from src.utils.routers_utils import include_routers
 async def lifespan(app_: FastAPI):
     os.system('alembic upgrade head')
 
-    v1_routers = []
+    from src.api.rest.meme.router import memes_rest_v1
+    v1_routers = [
+        memes_rest_v1
+    ]
     v1_router = include_routers(APIRouter(prefix='/v1'), v1_routers)
     main_router = include_routers(APIRouter(prefix='/api'), (v1_router,))
     app_.include_router(main_router)

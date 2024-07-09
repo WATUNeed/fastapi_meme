@@ -1,3 +1,4 @@
+from pydantic import ValidationError
 from pydantic_settings import BaseSettings
 from sqlalchemy import URL
 
@@ -23,6 +24,5 @@ class PostgresConfig(BaseSettings):
 
 try:
     POSTGRES_CONFIG = PostgresConfig(_env_file='.env', _env_prefix='POSTGRES_')
+except ValidationError:
     ALEMBIC_POSTGRES_CONFIG = PostgresConfig(_env_file='.migration.env', _env_prefix='POSTGRES_')
-except ImportError:
-    pass

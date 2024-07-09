@@ -7,20 +7,23 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from src.database.postgres.abstract_model import AbstractModel
+from src.domain.abc.model import AbstractModel
 from src.database.postgres.models import *
-from src.config.postgres import ALEMBIC_POSTGRES_CONFIG
 
+try:
+    from src.config.postgres import ALEMBIC_POSTGRES_CONFIG as POSTGRES_CONFIG
+except ImportError:
+    from src.config.postgres import POSTGRES_CONFIG
 
 config = context.config
 
 section = config.config_ini_section
-config.set_section_option(section, 'DB_USER', ALEMBIC_POSTGRES_CONFIG.user)
-config.set_section_option(section, 'DB_PASS', ALEMBIC_POSTGRES_CONFIG.password)
-config.set_section_option(section, 'DB_PORT', str(ALEMBIC_POSTGRES_CONFIG.port))
-config.set_section_option(section, 'DB_HOST', ALEMBIC_POSTGRES_CONFIG.host)
-config.set_section_option(section, 'DB_NAME', ALEMBIC_POSTGRES_CONFIG.db)
-config.set_section_option(section, 'DB_DRIVER', ALEMBIC_POSTGRES_CONFIG.driver)
+config.set_section_option(section, 'DB_USER', POSTGRES_CONFIG.user)
+config.set_section_option(section, 'DB_PASS', POSTGRES_CONFIG.password)
+config.set_section_option(section, 'DB_PORT', str(POSTGRES_CONFIG.port))
+config.set_section_option(section, 'DB_HOST', POSTGRES_CONFIG.host)
+config.set_section_option(section, 'DB_NAME', POSTGRES_CONFIG.db)
+config.set_section_option(section, 'DB_DRIVER', POSTGRES_CONFIG.driver)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

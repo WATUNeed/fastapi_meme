@@ -8,7 +8,7 @@ from src.domain.abc.dto import AbstractDTO
 class MemeCreateDTO(AbstractDTO):
     name: str = Field(..., max_length=256)
     description: str | None = Field(None)
-    image: bytes = Field(...)
+    # image: bytes = Field(...)
 
 
 class MemeGetDTO(AbstractDTO):

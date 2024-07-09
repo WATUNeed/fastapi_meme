@@ -19,7 +19,7 @@ class MemeBrokerDAO:
 
     @classmethod
     async def create(cls, meme: bytes) -> UUID | None:
-        result = await BROKER.publish(meme, cls._Queues.create, MEDIA_EXCHANGE, rpc=True)
+        result = await BROKER.publish(meme, cls._Queues.create, MEDIA_EXCHANGE, rpc=True, rpc_timeout=1)
         if result is None or result == b'':
             return None
         return result
@@ -27,14 +27,14 @@ class MemeBrokerDAO:
     @classmethod
     async def get(cls, image_id: UUID) -> bytes:
         filename = f'{image_id}'
-        result = await BROKER.publish(filename, cls._Queues.get, MEDIA_EXCHANGE, rpc=True)
+        result = await BROKER.publish(filename, cls._Queues.get, MEDIA_EXCHANGE, rpc=True, rpc_timeout=1)
         if result is None or result == b'':
             return None
         return result
 
     @classmethod
     async def get_names(cls) -> Set[UUID]:
-        result = await BROKER.publish(None, cls._Queues.get_names, MEDIA_EXCHANGE, rpc=True)
+        result = await BROKER.publish(None, cls._Queues.get_names, MEDIA_EXCHANGE, rpc=True, rpc_timeout=1)
         if result is None or result == b'':
             return None
         return result

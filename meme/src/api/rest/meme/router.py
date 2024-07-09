@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, status, Body, Path
+from fastapi import APIRouter, status, Body, Path, UploadFile, File, Depends
 
 from src.database.postgres.depends import get_session
 from src.domain.abc.depends import get_pagination
@@ -20,8 +20,8 @@ memes_rest_v1 = APIRouter(
     status_code=status.HTTP_201_CREATED,
     response_model=MemeGetDTO,
 )
-async def meme_create_route(session: get_session, body: MemeCreateDTO = Body(...)):
-    new_meme = await meme_create(session, body)
+async def meme_create_route(session: get_session, body: MemeCreateDTO = Depends(), image: UploadFile = File(...)):
+    new_meme = await meme_create(session, body, image.file.read())
     return new_meme
 
 

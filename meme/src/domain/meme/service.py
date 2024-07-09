@@ -10,11 +10,11 @@ from src.domain.meme.dto import MemeCreateDTO, MemeGetDTO, MemeUpdateDTO
 from src.domain.meme.exception import MemeExceptions
 
 
-async def meme_create(session: AsyncSession, data: MemeCreateDTO) -> MemeGetDTO:
-    image_id = await MemeBrokerDAO.create(data.image)
+async def meme_create(session: AsyncSession, data: MemeCreateDTO, image: bytes) -> MemeGetDTO:
+    image_id = await MemeBrokerDAO.create(image)
     if image_id is None:
         raise MemeExceptions.NotSaved
-    new_meme = await MemeSQLDAO(session).create(data, exclude={'image'}, image_id=image_id)
+    new_meme = await MemeSQLDAO(session).create(data, image_id=image_id)
     return new_meme
 
 

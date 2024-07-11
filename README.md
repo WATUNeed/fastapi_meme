@@ -69,6 +69,8 @@
 ## Тесты
 
 Запуск тестов
+> Для работы тестов нужно создать тестовую базу данных. Её название в [конфиге](https://github.com/WATUNeed/fastapi_meme/blob/master/meme/pytest.ini).
+
 ```
 cd meme
 ```
